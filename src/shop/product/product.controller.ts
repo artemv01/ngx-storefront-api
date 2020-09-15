@@ -36,15 +36,15 @@ class createProductDto {
   description: string;
 
   @IsNotEmpty()
-  @IsNumberString()
   price: number;
 
   @Transform(salePrice => (isNaN(Number(salePrice)) ? 0 : salePrice))
   @ValidateIf(o => o.salePrice)
-  @IsNumberString()
   salePrice: number;
 
+  @Allow()
   onSale: boolean;
+  @Allow()
   categories: string;
 }
 
@@ -106,13 +106,6 @@ export class ProductController {
     @InjectModel(ProductCategory.name) private productCategoryModel: ProductCategoryModel,
     private config: ConfigService
   ) {}
-
-  @Post('populate')
-  @UseGuards(AuthGuard('jwt'))
-  async populate(@Body() data) {
-    const result = await this.productModel.insertMany(data);
-    return result;
-  }
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -185,6 +178,7 @@ export class ProductController {
   @Post()
   @UseInterceptors(FileInterceptor('image', uploadConfig))
   async create(@UploadedFile() image, @Body() req: createProductDto) {
+    console.log(req);
     const product = new this.productModel((req as unknown) as Product);
     if (image && image.filename) {
       product.image = image.filename;

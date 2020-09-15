@@ -56,6 +56,7 @@ const uploadConfig = {
 class createDto {
   @IsNotEmpty()
   name: string;
+  @Allow()
   description: string;
 }
 
@@ -68,13 +69,15 @@ class getAllDto {
 
   @IsNotEmpty()
   sortOrder = 'asc';
-
+  @Allow()
   search: string;
 
   @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))
+  @Allow()
   page: string;
 
   @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 10))
+  @Allow()
   limit: string;
 
   @Allow()

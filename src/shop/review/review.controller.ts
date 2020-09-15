@@ -44,11 +44,6 @@ class editDto {
   authorEmail: string;
   @IsNotEmpty()
   authorName: string;
-  /* 
-  @IsNotEmpty()
-  @Min(0)
-  @Max(5)
-  rating: number; */
 
   @IsNotEmpty()
   content: string;

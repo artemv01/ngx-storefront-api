@@ -17,7 +17,7 @@ import {FileInterceptor} from '@nestjs/platform-express/multer/interceptors/file
 import {InjectModel} from '@nestjs/mongoose';
 import {Product} from '@app/schema/product.schema';
 import {Model} from 'mongoose';
-import {IsNotEmpty, ValidateNested, Allow} from 'class-validator';
+import {IsNotEmpty, ValidateNested, Allow, IsEmail} from 'class-validator';
 import {Review} from '@app/schema/review.schema';
 import {Order} from '@app/schema/order.schema';
 import {UnknownException} from '@app/common/unknown.exception';
@@ -44,6 +44,7 @@ class Address {
   state: string;
 
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsNotEmpty()
@@ -125,7 +126,7 @@ class getAllDto {
 
   @IsNotEmpty()
   sortOrder = 'asc';
-
+  @Allow()
   search: string;
 
   @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))

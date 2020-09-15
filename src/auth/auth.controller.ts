@@ -7,7 +7,7 @@ import {User} from '../schema/user.schema';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 
-class registerDto {
+/* class registerDto {
   @IsEmail(
     {},
     {
@@ -19,7 +19,7 @@ class registerDto {
   @IsNotEmpty()
   @MinLength(8, {message: 'Password must be longer than or equal to $constraint1 characters'})
   password: string;
-}
+} */
 
 class loginDto {
   @IsEmail()
@@ -39,7 +39,7 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @Post('register')
+  /* @Post('register')
   async register(@Body() req: registerDto) {
     let hashed = await hash(req.password, 12);
     let result = await this.userModel.create({
@@ -49,5 +49,5 @@ export class AuthController {
     if (!result) {
       throw new HttpException(null, 500);
     }
-  }
+  } */
 }

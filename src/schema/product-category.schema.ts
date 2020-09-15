@@ -5,6 +5,7 @@ import {Product} from './product.schema';
 
 @Schema({
   timestamps: false,
+  strict: true,
 })
 export class ProductCategory extends Document {
   @Prop({
