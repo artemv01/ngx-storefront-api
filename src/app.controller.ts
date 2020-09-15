@@ -8,6 +8,6 @@ export class AppController {
 
   @Get('uploads/:fileId')
   async serveImages(@Param('fileId') fileId, @Res() res): Promise<any> {
-    res.sendFile(fileId, {root: this.env.get('uploadsDir')});
+    res.sendFile(fileId, {root: this.env.get('uploadsDir'), maxAge: '1 year', lastModified: true, immutable: true});
   }
 }

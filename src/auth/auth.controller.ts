@@ -8,11 +8,16 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 
 class registerDto {
-  @IsEmail()
+  @IsEmail(
+    {},
+    {
+      message: 'Email is in incorrect format',
+    }
+  )
   email: string;
 
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(8, {message: 'Password must be longer than or equal to $constraint1 characters'})
   password: string;
 }
 

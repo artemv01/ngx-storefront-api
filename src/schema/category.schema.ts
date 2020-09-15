@@ -12,10 +12,10 @@ export class Category extends Document {
   name: string;
 
   @Prop()
-  image: string;
+  image?: string;
 
   @Prop()
-  description: string;
+  description?: string;
 
   getItems: () => [Product];
   countItems: () => [Product];
