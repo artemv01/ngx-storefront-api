@@ -130,9 +130,11 @@ class getAllDto {
   search: string;
 
   @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))
+  @Allow()
   page: string;
 
   @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 10))
+  @Allow()
   limit: string;
 }
 

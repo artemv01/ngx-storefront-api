@@ -54,6 +54,13 @@ class getAllDto {
   @IsNotEmpty()
   sortOrder = 'asc';
 
+  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))
+  @Allow()
+  page: string;
+  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 10))
+  @Allow()
+  limit: string;
+
   @Allow()
   search: string;
 
@@ -62,12 +69,6 @@ class getAllDto {
 
   @Allow()
   onSale: boolean;
-
-  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))
-  page: string;
-
-  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 10))
-  limit: string;
 }
 
 interface ProductModel extends Model<Product> {
