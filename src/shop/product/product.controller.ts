@@ -324,11 +324,16 @@ export class ProductController {
       filter._id.$in = foundProductsInCategory.map(item => item.product);
     }
 
-    const productsPaginate = await this.productModel.paginate(filter, {
+    const paginateConfig: any = {
       ...paginationConfig,
       select: '-reviews',
-      sort: {[query.sortType]: query.sortOrder},
-    });
+    };
+    if (query.sortType !== 'price') {
+      // sort on front end if the key is price
+      paginateConfig.sort = {[query.sortType]: query.sortOrder};
+    }
+
+    const productsPaginate = await this.productModel.paginate(filter, paginateConfig);
 
     const productResponce = [];
     for (const product of productsPaginate.docs) {
