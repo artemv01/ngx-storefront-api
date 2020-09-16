@@ -3,7 +3,6 @@ import {ProductCategory} from '@app/schema/product-category.schema';
 import {Product} from '@app/schema/product.schema';
 import {Review} from '@app/schema/review.schema';
 import {Injectable} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 
@@ -15,8 +14,7 @@ export class ProductSeederService {
     @InjectModel(Product.name) private productModel: Model<Product>,
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
-    @InjectModel(ProductCategory.name) private productCategoryModel: Model<ProductCategory>,
-    private config: ConfigService
+    @InjectModel(ProductCategory.name) private productCategoryModel: Model<ProductCategory>
   ) {}
 
   public async create() {

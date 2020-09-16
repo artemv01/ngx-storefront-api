@@ -1,17 +1,19 @@
 import {Module} from '@nestjs/common';
-import {ConfigModule, ConfigService} from '@nestjs/config';
+import {ConfigModule} from '@nestjs/config';
 import {MongooseModule} from '@nestjs/mongoose';
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import {AuthModule} from './auth/auth.module';
 import {ShopModule} from './shop/shop.module';
-import {environment} from '@env/environment';
-import {join} from 'path';
 
 @Module({
   imports: [
     AuthModule,
-    MongooseModule.forRoot('mongodb://localhost/webshoptest', {
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
+    MongooseModule.forRoot(process.env.MONGODB_CONN, {
       connectionFactory: connection => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         connection.plugin(require('mongoose-unique-validator'));
@@ -19,10 +21,6 @@ import {join} from 'path';
         connection.plugin(require('mongoose-paginate'));
         return connection;
       },
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [environment],
     }),
 
     ShopModule,

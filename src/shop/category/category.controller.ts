@@ -28,11 +28,10 @@ import {UnknownException} from '@app/common/unknown.exception';
 import path, {extname} from 'path';
 import fs from 'fs';
 import {Transform} from 'class-transformer';
-import {ConfigService} from '@nestjs/config';
 
-import {environment} from '@env/environment';
 import {AuthGuard} from '@nestjs/passport';
 import {ProductCategory} from '@app/schema/product-category.schema';
+import {constants} from '@app/config/constants';
 
 const uploadConfig = {
   fileFilter: (req, file, callback) => {
@@ -42,7 +41,7 @@ const uploadConfig = {
     callback(null, true);
   },
   storage: diskStorage({
-    destination: environment().uploadsDir,
+    destination: constants.uploadsDir,
     filename: (req, file, cb) => {
       const randomName = Array(32)
         .fill(null)
@@ -94,8 +93,7 @@ export class CategoryController {
     @InjectModel(Product.name) private productModel: Model<Product>,
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Category.name) private categoryModel: categoryModel,
-    @InjectModel(ProductCategory.name) private productCategoryModel: Model<ProductCategory>,
-    private config: ConfigService
+    @InjectModel(ProductCategory.name) private productCategoryModel: Model<ProductCategory>
   ) {}
 
   @Post()
@@ -125,7 +123,7 @@ export class CategoryController {
     if (image && image.filename) {
       catImage = image.filename;
       if (category.image) {
-        const oldImagePath = path.join(this.config.get('uploadsDir'), category.image);
+        const oldImagePath = path.join(constants.uploadsDir, category.image);
 
         if (fs.existsSync(oldImagePath)) {
           // eslint-disable-next-line @typescript-eslint/no-empty-function

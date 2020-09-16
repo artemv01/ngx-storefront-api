@@ -1,8 +1,6 @@
 import {resolve, join} from 'path';
 
-export const environment = () => ({
-  jwtExpire: 604800000,
-  jwtSecret: 'secure',
+export const constants = {
   appRoot: resolve(__dirname),
   uploadsDir: join(resolve(`${__dirname}/..`), '/uploads'),
-});
+};

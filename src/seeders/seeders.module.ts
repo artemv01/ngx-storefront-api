@@ -7,17 +7,19 @@ import {Product, ProductSchemaFactory} from '@app/schema/product.schema';
 import {Review, ReviewSchemaFactory} from '@app/schema/review.schema';
 import {User, UserSchema} from '@app/schema/user.schema';
 import {Module} from '@nestjs/common';
-import {ConfigModule, ConfigService} from '@nestjs/config';
+import {ConfigModule} from '@nestjs/config';
 import {JwtModule} from '@nestjs/jwt';
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {PassportModule} from '@nestjs/passport';
-import {environment} from '@root/environments/environment';
 import {AdminSeederService} from './admin-seeder/admin-seeder.service';
 import {ProductSeederService} from './product-seeder/product-seeder.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/webshoptest', {
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRoot(process.env.MONGODB_CONN, {
       connectionFactory: connection => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         connection.plugin(require('mongoose-unique-validator'));
@@ -27,13 +29,9 @@ import {ProductSeederService} from './product-seeder/product-seeder.service';
       },
     }),
     PassportModule.register({defaultStrategy: 'jwt'}),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('jwtSecret'),
-        signOptions: {expiresIn: configService.get('jwtExpire')},
-      }),
-      inject: [ConfigService],
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: {expiresIn: process.env.JWT_EXPIRE},
     }),
     MongooseModule.forFeature([{name: User.name, schema: UserSchema}]),
     MongooseModule.forFeature([{name: Order.name, schema: OrderSchema}]),
@@ -51,10 +49,7 @@ import {ProductSeederService} from './product-seeder/product-seeder.service';
         inject: [getModelToken(Review.name), getModelToken(ProductCategory.name), getModelToken(Category.name)],
       },
     ]),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [environment],
-    }),
+
     SeedersModule,
   ],
   controllers: [AppController],

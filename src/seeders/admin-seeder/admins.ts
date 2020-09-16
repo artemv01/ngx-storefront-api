@@ -1,6 +1,6 @@
-export const  admins = [
+export const admins = [
   {
-    'email': 'example@example.com',
-    'password': 'password12',
-  }
-]
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
+  },
+];

@@ -22,13 +22,12 @@ import {IsNotEmpty, IsNumber, IsNumberString, ValidateIf, Allow} from 'class-val
 import {Transform} from 'class-transformer';
 import {Review} from '@app/schema/review.schema';
 import path, {extname} from 'path';
-import {ConfigService} from '@nestjs/config';
 import {ProductCategory} from '@app/schema/product-category.schema';
 import {Category} from '@app/schema/category.schema';
 import {UnknownException} from '@app/common/unknown.exception';
 import fs from 'fs';
-import {environment} from '@env/environment';
 import {AuthGuard} from '@nestjs/passport';
+import {constants} from '@app/config/constants';
 
 class createProductDto {
   @IsNotEmpty()
@@ -86,7 +85,7 @@ const uploadConfig = {
     callback(null, true);
   },
   storage: diskStorage({
-    destination: environment().uploadsDir,
+    destination: constants.uploadsDir,
     filename: (req, file, cb) => {
       const randomName = Array(32)
         .fill(null)
@@ -103,8 +102,7 @@ export class ProductController {
     @InjectModel(Product.name) private productModel: ProductModel,
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
-    @InjectModel(ProductCategory.name) private productCategoryModel: ProductCategoryModel,
-    private config: ConfigService
+    @InjectModel(ProductCategory.name) private productCategoryModel: ProductCategoryModel
   ) {}
 
   @Patch(':id')
@@ -147,7 +145,7 @@ export class ProductController {
     if (image && image.filename) {
       prodImage = image.filename;
       if (product.image) {
-        const oldImagePath = path.join(this.config.get('uploadsDir'), product.image);
+        const oldImagePath = path.join(constants.uploadsDir, product.image);
 
         if (fs.existsSync(oldImagePath)) {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
