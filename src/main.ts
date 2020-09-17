@@ -15,10 +15,10 @@ async function bootstrap() {
       transform: true,
     })
   );
-  app.enableCors({
-    origin: [process.env.APP_URL],
+  app.enableCors(/* {
+    origin: ['*'],
     credentials: true,
-  });
+  } */);
   await app.listen(process.env.PORT || 4500);
 }
 bootstrap();
