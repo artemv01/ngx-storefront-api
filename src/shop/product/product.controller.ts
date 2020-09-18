@@ -73,6 +73,7 @@ class getAllDto {
 
 interface ProductModel extends Model<Product> {
   paginate: any;
+  aggregatePaginate: any;
 }
 interface ProductCategoryModel extends Model<ProductCategory> {
   paginate: any;
@@ -324,27 +325,44 @@ export class ProductController {
       filter._id.$in = foundProductsInCategory.map(item => item.product);
     }
 
-    const paginateConfig: any = {
-      ...paginationConfig,
-      select: '-reviews',
+    const aggregation: any = {
+      $match: filter,
+      $project: {
+        _id: 1,
+        description: 1,
+        name: 1,
+        rating: 1,
+        ratingCount: 1,
+        image: 1,
+        price: 1,
+        salePrice: 1,
+        onSale: 1,
+      },
     };
-    if (query.sortType !== 'price') {
-      // sort on front end if the key is price
-      paginateConfig.sort = {[query.sortType]: query.sortOrder};
+    if (query.sortType == 'price') {
+      aggregation.$project.sortPrice = {$cond: [{$eq: ['$onSale', true]}, '$salePrice', '$price']};
+      aggregation.$sort = {sortPrice: query.sortOrder === 'asc' ? 1 : -1};
+    } else {
+      aggregation.$sort = {[query.sortType]: query.sortOrder === 'asc' ? 1 : -1};
     }
-
-    const productsPaginate = await this.productModel.paginate(filter, paginateConfig);
-
-    const productResponce = [];
-    for (const product of productsPaginate.docs) {
-      productResponce.push({
-        ...product.toObject(),
-        categories: await product.getCategories(),
-      });
+    const aggregationData = [];
+    for (const [key, val] of Object.entries(aggregation)) {
+      aggregationData.push({[key]: val});
     }
-
-    const {total, limit, page, pages} = productsPaginate;
-    return {products: productResponce, categoryName: categoryName, total, limit, page, pages};
+    if (query.sortType == 'price') {
+      aggregationData.push({$project: {sortPrice: false}});
+    }
+    const agg = this.productModel.aggregate(aggregationData);
+    const productsPaginate = await this.productModel.aggregatePaginate(agg, paginationConfig);
+    const {totalDocs, limit, page, totalPages} = productsPaginate;
+    return {
+      products: productsPaginate.docs,
+      categoryName: categoryName,
+      total: totalDocs,
+      limit,
+      page,
+      pages: totalPages,
+    };
   }
 
   @Delete(':id')

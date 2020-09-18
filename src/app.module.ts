@@ -19,6 +19,9 @@ import {ShopModule} from './shop/shop.module';
         connection.plugin(require('mongoose-unique-validator'));
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         connection.plugin(require('mongoose-paginate'));
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        connection.plugin(require('mongoose-aggregate-paginate-v2'));
+
         return connection;
       },
     }),
