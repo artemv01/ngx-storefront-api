@@ -60,9 +60,6 @@ class createDto {
 }
 
 class getAllDto {
-  @Allow()
-  nopaginate: boolean;
-
   @IsNotEmpty()
   sortType = 'price';
 
@@ -107,6 +104,15 @@ export class CategoryController {
 
     const result = await category.save();
     return result._id;
+  }
+
+  @Get('bulk')
+  async getBulk(): Promise<any> {
+    const result = this.categoryModel
+      .find({})
+      .lean()
+      .exec();
+    return result;
   }
 
   @Patch(':id')
