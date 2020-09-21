@@ -47,6 +47,8 @@ class createProductDto {
   onSale: boolean;
   @Allow()
   categories: string;
+  @Allow()
+  image: string;
 }
 
 class getAllDto {
@@ -180,7 +182,6 @@ export class ProductController {
   @Post()
   @UseInterceptors(FileInterceptor('image', uploadConfig))
   async create(@UploadedFile() image, @Body() req: createProductDto) {
-    console.log(req);
     const product = new this.productModel((req as unknown) as Product);
     if (image && image.filename) {
       product.image = image.filename;
