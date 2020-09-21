@@ -1,7 +1,15 @@
-version: 2.1
+jobs:
+  deploy:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/deploy-via-git:
+          force: true
 orbs:
   heroku: circleci/heroku@1.2.2
+version: 2.1
 workflows:
   heroku_deploy:
     jobs:
-      - heroku/deploy-via-git
+      - deploy
