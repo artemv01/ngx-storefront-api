@@ -8,11 +8,10 @@ import {ShopModule} from './shop/shop.module';
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
+    AuthModule,
     MongooseModule.forRoot(process.env.MONGODB_CONN, {
       connectionFactory: connection => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires

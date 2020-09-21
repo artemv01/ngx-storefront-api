@@ -32,6 +32,8 @@ import {constants} from '@app/config/constants';
 class createProductDto {
   @IsNotEmpty()
   name: string;
+
+  @Allow()
   description: string;
 
   @IsNotEmpty()
