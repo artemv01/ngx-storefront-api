@@ -12,6 +12,7 @@ import {
   UploadedFile,
   UseGuards,
   Patch,
+  HttpStatus,
 } from '@nestjs/common';
 import {diskStorage} from 'multer';
 import {FileInterceptor} from '@nestjs/platform-express/multer/interceptors/file.interceptor';
@@ -28,6 +29,9 @@ import {UnknownException} from '@app/common/unknown.exception';
 import fs from 'fs';
 import {AuthGuard} from '@nestjs/passport';
 import {constants} from '@app/config/constants';
+import {UploaderService} from '@app/service/uploader/uploader.service';
+import {Upload} from 'aws-sdk/clients/devicefarm';
+import {ManagedUpload} from 'aws-sdk/clients/s3';
 
 class createProductDto {
   @IsNotEmpty()
@@ -105,6 +109,7 @@ const uploadConfig = {
 @Controller('product')
 export class ProductController {
   constructor(
+    private uploadServ: UploaderService,
     @InjectModel(Product.name) private productModel: ProductModel,
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
@@ -113,8 +118,12 @@ export class ProductController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('image', uploadConfig))
-  async edit(@UploadedFile() image, @Body() req: createProductDto, @Param('id') id): Promise<string> {
+  @UseInterceptors(FileInterceptor('image'))
+  async edit(
+    @UploadedFile() image: Express.Multer.File,
+    @Body() req: createProductDto,
+    @Param('id') id
+  ): Promise<string> {
     const product = await this.productModel.findById(id).exec();
 
     if (!product) {
@@ -148,18 +157,21 @@ export class ProductController {
     }
 
     let prodImage = product.image;
-    if (image && image.filename) {
-      prodImage = image.filename;
-      if (product.image) {
-        const oldImagePath = path.join(constants.uploadsDir, product.image);
-
-        if (fs.existsSync(oldImagePath)) {
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          fs.unlinkSync(oldImagePath);
-        }
+    if (image?.buffer) {
+      let savedImg: string;
+      try {
+        savedImg = await this.uploadServ.upload(image);
+      } catch (err) {
+        throw new UnknownException();
       }
+      if (prodImage) {
+        try {
+          await this.uploadServ.delete(prodImage);
+        } catch (e) {}
+      }
+      prodImage = savedImg;
     }
-    // await product.save();
+
     const updResult = await this.productModel.findByIdAndUpdate(
       id,
       {
@@ -180,11 +192,17 @@ export class ProductController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  @UseInterceptors(FileInterceptor('image', uploadConfig))
+  @UseInterceptors(FileInterceptor('image'))
   async create(@UploadedFile() image, @Body() req: createProductDto) {
     const product = new this.productModel((req as unknown) as Product);
-    if (image && image.filename) {
-      product.image = image.filename;
+    if (image?.buffer) {
+      let savedImg: string;
+      try {
+        savedImg = await this.uploadServ.upload(image);
+      } catch (err) {
+        throw new UnknownException();
+      }
+      product.image = savedImg;
     }
 
     const newProduct = await product.save();

@@ -11,10 +11,11 @@ import {OrderController} from './order/order.controller';
 import {CategoryController} from './category/category.controller';
 import {Category, CategorySchemaFactory} from '@app/schema/category.schema';
 import {ProductCategory, ProductCategorySchemaFactory} from '@app/schema/product-category.schema';
+import {UploaderService} from '@app/service/uploader/uploader.service';
 
 @Module({
   imports: [
-    MulterModule.register({dest: '../../uploads'}),
+    // MulterModule.register({dest: '../../uploads'}),
     MongooseModule.forFeature([{name: Order.name, schema: OrderSchema}]),
     MongooseModule.forFeatureAsync([
       {name: Review.name, useFactory: ReviewSchemaFactory},
@@ -32,5 +33,6 @@ import {ProductCategory, ProductCategorySchemaFactory} from '@app/schema/product
     ]),
   ],
   controllers: [ProductController, ReviewController, OrderController, CategoryController],
+  providers: [UploaderService],
 })
 export class ShopModule {}

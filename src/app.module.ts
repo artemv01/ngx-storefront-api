@@ -5,6 +5,20 @@ import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import {AuthModule} from './auth/auth.module';
 import {ShopModule} from './shop/shop.module';
+import {UploaderService} from './service/uploader/uploader.service';
+
+/* const s3Factory = {
+  provide: 'S3',
+  useFactory: () => {
+    const config = {
+      credentials: {
+        accessKeyId: process.env('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
+      region: 'us-west-2',
+    }
+  }
+} */
 
 @Module({
   imports: [
@@ -28,6 +42,6 @@ import {ShopModule} from './shop/shop.module';
     ShopModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UploaderService],
 })
 export class AppModule {}
