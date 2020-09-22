@@ -10,7 +10,6 @@ import {
   Delete,
   UseGuards,
   Patch,
-  All,
 } from '@nestjs/common';
 import {IsNotEmpty, Allow, Min, Max} from 'class-validator';
 import {InjectModel} from '@nestjs/mongoose';
@@ -18,8 +17,8 @@ import {Review} from '@app/schema/review.schema';
 import {Model} from 'mongoose';
 import {Transform} from 'class-transformer';
 import {Product} from '@app/schema/product.schema';
-import {UnknownException} from '@app/common/unknown.exception';
 import {AuthGuard} from '@nestjs/passport';
+import {InternalException} from '@app/common/internal.exception';
 
 class reviewDto {
   @IsNotEmpty()
@@ -127,7 +126,7 @@ export class ReviewController {
 
     const updResult = await this.reviewModel.findByIdAndUpdate(id, req, {new: true});
     if (!updResult) {
-      throw new UnknownException();
+      throw new InternalException();
     }
     return updResult._id;
   }

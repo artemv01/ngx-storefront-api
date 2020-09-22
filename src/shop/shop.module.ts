@@ -1,6 +1,4 @@
 import {Module} from '@nestjs/common';
-import {MulterModule} from '@nestjs/platform-express';
-
 import {ProductController} from './product/product.controller';
 import {ProductSchemaFactory, Product} from '@app/schema/product.schema';
 import {MongooseModule, getModelToken} from '@nestjs/mongoose';

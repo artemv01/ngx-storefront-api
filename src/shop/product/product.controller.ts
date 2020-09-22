@@ -2,7 +2,6 @@ import {
   Controller,
   Body,
   Post,
-  HttpException,
   Query,
   Get,
   NotFoundException,
@@ -12,26 +11,19 @@ import {
   UploadedFile,
   UseGuards,
   Patch,
-  HttpStatus,
 } from '@nestjs/common';
-import {diskStorage} from 'multer';
 import {FileInterceptor} from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import {InjectModel} from '@nestjs/mongoose';
 import {Product} from '@app/schema/product.schema';
-import {Model, Types, DocumentQuery} from 'mongoose';
-import {IsNotEmpty, IsNumber, IsNumberString, ValidateIf, Allow} from 'class-validator';
+import {Model, Types} from 'mongoose';
+import {IsNotEmpty, ValidateIf, Allow} from 'class-validator';
 import {Transform} from 'class-transformer';
 import {Review} from '@app/schema/review.schema';
-import path, {extname} from 'path';
 import {ProductCategory} from '@app/schema/product-category.schema';
 import {Category} from '@app/schema/category.schema';
-import {UnknownException} from '@app/common/unknown.exception';
-import fs from 'fs';
 import {AuthGuard} from '@nestjs/passport';
-import {constants} from '@app/config/constants';
 import {UploaderService} from '@app/service/uploader/uploader.service';
-import {Upload} from 'aws-sdk/clients/devicefarm';
-import {ManagedUpload} from 'aws-sdk/clients/s3';
+import {InternalException} from '@app/common/internal.exception';
 
 class createProductDto {
   @IsNotEmpty()
@@ -78,6 +70,10 @@ class getAllDto {
   @Allow()
   onSale: boolean;
 }
+class bulkDelete {
+  @IsNotEmpty()
+  productIds: string[];
+}
 
 interface ProductModel extends Model<Product> {
   paginate: any;
@@ -87,7 +83,7 @@ interface ProductCategoryModel extends Model<ProductCategory> {
   paginate: any;
 }
 
-const uploadConfig = {
+/* const uploadConfig = {
   fileFilter: (req, file, callback) => {
     if (!['image/jpeg', 'image/png'].includes(file.mimetype)) {
       return callback(new HttpException('Only image files are allowed!', 500), false);
@@ -104,7 +100,7 @@ const uploadConfig = {
       cb(null, `${randomName}${extname(file.originalname)}`);
     },
   }),
-};
+}; */
 
 @Controller('product')
 export class ProductController {
@@ -115,6 +111,12 @@ export class ProductController {
     @InjectModel(Category.name) private categoryModel: Model<Category>,
     @InjectModel(ProductCategory.name) private productCategoryModel: ProductCategoryModel
   ) {}
+
+  @Patch('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  async bulkDelete(@Body() products: bulkDelete): Promise<void> {
+    const result = this.productModel.deleteMany({_id: {$in: products.productIds}}).exec();
+  }
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -137,7 +139,7 @@ export class ProductController {
         if (!cat._id) {
           const newCat = await this.categoryModel.create({name: cat.name} as Category);
           if (!newCat) {
-            throw new UnknownException();
+            throw new InternalException();
           }
           cat._id = newCat._id;
         }
@@ -162,7 +164,7 @@ export class ProductController {
       try {
         savedImg = await this.uploadServ.upload(image);
       } catch (err) {
-        throw new UnknownException();
+        throw new InternalException();
       }
       if (prodImage) {
         try {
@@ -185,7 +187,7 @@ export class ProductController {
       {new: true}
     );
     if (!updResult) {
-      throw new UnknownException();
+      throw new InternalException();
     }
     return updResult._id;
   }
@@ -200,14 +202,14 @@ export class ProductController {
       try {
         savedImg = await this.uploadServ.upload(image);
       } catch (err) {
-        throw new UnknownException();
+        throw new InternalException();
       }
       product.image = savedImg;
     }
 
     const newProduct = await product.save();
     if (!newProduct) {
-      throw new UnknownException();
+      throw new InternalException();
     }
 
     if (req.categories) {
@@ -385,7 +387,6 @@ export class ProductController {
       pages: totalPages,
     };
   }
-
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   async delete(@Param('id') id: string): Promise<void> {

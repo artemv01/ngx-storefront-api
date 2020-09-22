@@ -20,7 +20,6 @@ import {Model} from 'mongoose';
 import {IsNotEmpty, ValidateNested, Allow, IsEmail} from 'class-validator';
 import {Review} from '@app/schema/review.schema';
 import {Order} from '@app/schema/order.schema';
-import {UnknownException} from '@app/common/unknown.exception';
 import {Transform, Type, TransformPlainToClass, plainToClass} from 'class-transformer';
 import {AuthGuard} from '@nestjs/passport';
 

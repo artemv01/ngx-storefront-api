@@ -1,37 +1,14 @@
-import {
-  Controller,
-  Body,
-  Post,
-  HttpException,
-  Query,
-  Get,
-  NotFoundException,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
-  UseGuards,
-  Put,
-  Patch,
-  All,
-} from '@nestjs/common';
-import {diskStorage} from 'multer';
+import {Controller, Body, Post, Query, Get, NotFoundException, Param, Delete, UseGuards, Patch} from '@nestjs/common';
 
-import {FileInterceptor} from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import {InjectModel} from '@nestjs/mongoose';
-import {Product} from '@app/schema/product.schema';
 import {Model} from 'mongoose';
 import {IsNotEmpty, Allow} from 'class-validator';
-import {Review} from '@app/schema/review.schema';
 import {Category} from '@app/schema/category.schema';
-import {UnknownException} from '@app/common/unknown.exception';
-import path, {extname} from 'path';
-import fs from 'fs';
 import {Transform} from 'class-transformer';
 
 import {AuthGuard} from '@nestjs/passport';
 import {ProductCategory} from '@app/schema/product-category.schema';
-import {constants} from '@app/config/constants';
+import {InternalException} from '@app/common/internal.exception';
 
 /* const uploadConfig = {
   fileFilter: (req, file, callback) => {
@@ -87,8 +64,6 @@ interface categoryModel extends Model<Category> {
 @Controller('category')
 export class CategoryController {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Category.name) private categoryModel: categoryModel,
     @InjectModel(ProductCategory.name) private productCategoryModel: Model<ProductCategory>
   ) {}
@@ -141,7 +116,7 @@ export class CategoryController {
       {new: true}
     );
     if (!updResult) {
-      throw new UnknownException();
+      throw new InternalException();
     }
     return updResult._id;
   }
