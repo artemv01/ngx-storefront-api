@@ -33,7 +33,7 @@ import {AuthGuard} from '@nestjs/passport';
 import {ProductCategory} from '@app/schema/product-category.schema';
 import {constants} from '@app/config/constants';
 
-const uploadConfig = {
+/* const uploadConfig = {
   fileFilter: (req, file, callback) => {
     if (!['image/jpeg', 'image/png'].includes(file.mimetype)) {
       return callback(new HttpException('Only image files are allowed!', 500), false);
@@ -50,7 +50,7 @@ const uploadConfig = {
       cb(null, `${randomName}${extname(file.originalname)}`);
     },
   }),
-};
+}; */
 
 class createDto {
   @IsNotEmpty()
@@ -95,13 +95,8 @@ export class CategoryController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('image', uploadConfig))
-  async create(@UploadedFile() image, @Body() req: createDto) {
+  async create(@Body() req: createDto) {
     const category = new this.categoryModel((req as unknown) as Category);
-    if (image && image.filename) {
-      category.image = image.filename;
-    }
-
     const result = await category.save();
     return result._id;
   }
@@ -117,15 +112,14 @@ export class CategoryController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('image', uploadConfig))
-  async edit(@UploadedFile() image, @Body() req: createDto, @Param('id') id): Promise<string> {
+  async edit(@Body() req: createDto, @Param('id') id): Promise<string> {
     const category = await this.categoryModel.findById(id).exec();
 
     if (!category) {
       throw new NotFoundException();
     }
 
-    let catImage = category.image;
+    /*     let catImage = category.image;
     if (image && image.filename) {
       catImage = image.filename;
       if (category.image) {
@@ -136,13 +130,12 @@ export class CategoryController {
           fs.unlinkSync(oldImagePath);
         }
       }
-    }
+    } */
     // await category.save();
     const updResult = await this.categoryModel.findByIdAndUpdate(
       id,
       {
         name: req.name,
-        image: catImage,
         description: req.description,
       },
       {new: true}

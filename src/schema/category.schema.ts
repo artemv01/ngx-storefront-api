@@ -13,9 +13,6 @@ export class Category extends Document {
   name: string;
 
   @Prop()
-  image?: string;
-
-  @Prop()
   description?: string;
 
   getItems: () => [Product];
