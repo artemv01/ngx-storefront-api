@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UseGuards,
   Patch,
+  HttpException,
 } from '@nestjs/common';
 import {FileInterceptor} from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import {InjectModel} from '@nestjs/mongoose';
@@ -24,6 +25,11 @@ import {Category} from '@app/schema/category.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {UploaderService} from '@app/service/uploader/uploader.service';
 import {InternalException} from '@app/common/internal.exception';
+import {diskStorage} from 'multer';
+import {diskStorageConfig} from '@app/config/dist-storage-config';
+import {s3StorageConfig} from '@app/config/s3-storage-config';
+import {uploadConfig} from '@app/config/upload-config';
+import {deleteImage} from '@app/helpers/delete-image';
 
 class createProductDto {
   @IsNotEmpty()
@@ -83,25 +89,6 @@ interface ProductCategoryModel extends Model<ProductCategory> {
   paginate: any;
 }
 
-/* const uploadConfig = {
-  fileFilter: (req, file, callback) => {
-    if (!['image/jpeg', 'image/png'].includes(file.mimetype)) {
-      return callback(new HttpException('Only image files are allowed!', 500), false);
-    }
-    callback(null, true);
-  },
-  storage: diskStorage({
-    destination: constants.uploadsDir,
-    filename: (req, file, cb) => {
-      const randomName = Array(32)
-        .fill(null)
-        .map(() => Math.round(Math.random() * 16).toString(16))
-        .join('');
-      cb(null, `${randomName}${extname(file.originalname)}`);
-    },
-  }),
-}; */
-
 @Controller('product')
 export class ProductController {
   constructor(
@@ -120,12 +107,8 @@ export class ProductController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('image'))
-  async edit(
-    @UploadedFile() image: Express.Multer.File,
-    @Body() req: createProductDto,
-    @Param('id') id
-  ): Promise<string> {
+  @UseInterceptors(FileInterceptor('image', uploadConfig))
+  async edit(@UploadedFile() image, @Body() req: createProductDto, @Param('id') id): Promise<string> {
     const product = await this.productModel.findById(id).exec();
 
     if (!product) {
@@ -158,22 +141,23 @@ export class ProductController {
       }
     }
 
-    let prodImage = product.image;
-    if (image?.buffer) {
-      let savedImg: string;
-      try {
-        savedImg = await this.uploadServ.upload(image);
-      } catch (err) {
-        throw new InternalException();
-      }
-      if (prodImage) {
+    let prodImage = product.image ? product.image : '';
+    if (image) {
+      const oldImage = prodImage.split('/').pop();
+      if (oldImage) {
         try {
-          await this.uploadServ.delete(prodImage);
-        } catch (e) {}
+          const deleteResult = await deleteImage(oldImage);
+        } catch (err) {
+          console.log(`Error deleting file from storage ${process.env.STORAGE_TYPE}: ${err}`);
+          // TODO: Log this
+        }
       }
-      prodImage = savedImg;
+      if (process.env.STORAGE_TYPE === 'DISK') {
+        prodImage = process.env.UPLOADS_URL.replace(/\/$/, '') + '/' + image.filename;
+      } else {
+        prodImage = image.location;
+      }
     }
-
     const updResult = await this.productModel.findByIdAndUpdate(
       id,
       {
@@ -194,17 +178,15 @@ export class ProductController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('image', uploadConfig))
   async create(@UploadedFile() image, @Body() req: createProductDto) {
     const product = new this.productModel((req as unknown) as Product);
-    if (image?.buffer) {
-      let savedImg: string;
-      try {
-        savedImg = await this.uploadServ.upload(image);
-      } catch (err) {
-        throw new InternalException();
+    if (image) {
+      if (process.env.STORAGE_TYPE === 'DISK') {
+        product.image = process.env.UPLOADS_URL.replace(/\/$/, '') + '/' + image.filename;
+      } else {
+        product.image = image.location;
       }
-      product.image = savedImg;
     }
 
     const newProduct = await product.save();
