@@ -4,7 +4,7 @@ import {Model} from 'mongoose';
 import {Transform} from 'class-transformer';
 import {Order} from '@app/schema/order.schema';
 
-export class Address {
+class Address {
   @IsNotEmpty()
   address_line1: string;
 
@@ -55,42 +55,37 @@ export class createOrderDto {
   notes: string;
 }
 
-export class ProductInCart {
-  @IsNotEmpty()
+interface ProductInCart {
   name: string;
-  @IsNotEmpty()
   description: string;
-  @IsNotEmpty()
   price: number;
-  @IsNotEmpty()
   onSale: boolean;
-  @IsNotEmpty()
   image: string;
-  @IsNotEmpty()
   originalId: string;
 }
-export class CartItem {
-  @IsNotEmpty()
-  @Transform(pojo => plainToClass(ProductInCart, pojo))
-  @ValidateNested()
+export interface CartItem {
   product: ProductInCart;
-
-  @IsNotEmpty()
   quantity: number;
 }
 export class editOrderDto {
+  @IsNotEmpty()
   @Transform(pojo => plainToClass(Address, pojo))
   @ValidateNested()
   shippingAddress: Address;
 
+  @IsNotEmpty()
   @Transform(pojo => plainToClass(Address, pojo))
   @ValidateNested()
   billingAddress: Address;
-  status: string;
 
-  @Transform(pojo => plainToClass(CartItem, pojo))
-  @ValidateNested()
-  cart: [CartItem];
+  @IsNotEmpty()
+  cart: Record<string, number>;
+
+  @Allow()
+  notes: string;
+
+  @Allow()
+  status: string;
 }
 
 export class ChangeStatusDto {
@@ -101,10 +96,10 @@ export class ChangeStatusDto {
 }
 
 export class getAllDto {
-  @IsNotEmpty()
+  @Allow()
   sortType: string;
 
-  @IsNotEmpty()
+  @Allow()
   sortOrder: string;
   @Allow()
   search: string;
@@ -120,4 +115,5 @@ export class getAllDto {
 
 export interface orderModel extends Model<Order> {
   paginate: any;
+  aggregatePaginate: any;
 }

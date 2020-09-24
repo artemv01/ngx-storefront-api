@@ -81,15 +81,6 @@ export class ReviewController {
   @Get('')
   @UseGuards(AuthGuard('jwt'))
   async getAll(@Query() query: reviewGetAllDto): Promise<any> {
-    if (query.recent) {
-      const result = await this.reviewModel
-        .find({})
-        .sort({createdAt: -1})
-        .limit(5)
-        .exec();
-      return result;
-    }
-
     let paginationConfig = {};
     if (!query.page) {
       paginationConfig = {

@@ -43,7 +43,7 @@ export class ProductController {
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('image', uploadConfig))
-  async edit(@UploadedFile() image, @Body() req: createProductDto, @Param('id') id): Promise<string> {
+  async edit(@UploadedFile() image, @Body() req: createProductDto, @Param('id') id): Promise<void> {
     const product = await this.productModel.findById(id).exec();
 
     if (!product) {
@@ -93,22 +93,17 @@ export class ProductController {
         prodImage = image.location;
       }
     }
-    const updResult = await this.productModel.findByIdAndUpdate(
-      id,
-      {
-        name: req.name,
-        image: prodImage,
-        description: req.description,
-        salePrice: req.salePrice,
-        price: req.price,
-        onSale: req.onSale,
-      },
-      {new: true}
-    );
+    const updResult = await product.update({
+      name: req.name,
+      image: prodImage,
+      description: req.description,
+      salePrice: req.salePrice,
+      price: req.price,
+      onSale: req.onSale,
+    });
     if (!updResult) {
       throw new InternalException();
     }
-    return updResult._id;
   }
 
   @UseGuards(AuthGuard('jwt'))

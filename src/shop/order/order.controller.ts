@@ -1,12 +1,12 @@
 import {Controller, Body, Post, Query, Get, NotFoundException, Param, Delete, UseGuards, Patch} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Product} from '@app/schema/product.schema';
-import {Model} from 'mongoose';
+import {Model, Types} from 'mongoose';
 import {Order} from '@app/schema/order.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {ChangeStatusDto, createOrderDto, CartItem, editOrderDto, getAllDto, orderModel} from './order.types';
 
-@Controller('orders')
+@Controller('order')
 export class OrderController {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
@@ -24,28 +24,24 @@ export class OrderController {
   }
 
   @Post()
-  async create(@Body() req: createOrderDto): Promise<void> {
+  async create(@Body() req: createOrderDto): Promise<Types.ObjectId> {
     const newOrder = new this.orderModel();
 
     newOrder.shippingAddress = req.shippingAddress;
     newOrder.billingAddress = req.billingAddress;
     newOrder.notes = req.notes;
-
+    newOrder.total = 0;
     for (const [_id, quantity] of Object.entries(req.cart)) {
       const product = await this.productModel.findById(_id);
       if (!product) {
         continue;
       }
-      const newCartItem: CartItem = {} as CartItem;
+
       let price = 0;
-
-      if (!product) {
-        continue;
-      }
-
       price = product.onSale ? product.salePrice : product.price;
       newOrder.total += price * quantity;
 
+      const newCartItem: CartItem = {} as CartItem;
       newCartItem.product = {
         name: product.name,
         description: product.description,
@@ -55,6 +51,7 @@ export class OrderController {
         originalId: product._id,
       };
       newCartItem.quantity = quantity;
+
       newOrder.cart.push(newCartItem);
     }
 
@@ -72,14 +69,35 @@ export class OrderController {
       cart: order.cart,
       total: order.total,
       status: req.status ? req.status : order.status,
+      notes: req.notes ? req.notes : order.notes,
     };
 
     if (req.cart && Object.keys(req.cart).length) {
-      newOrderData.cart = req.cart;
-
+      newOrderData.cart = [];
       newOrderData.total = 0;
-      for (const item of req.cart) {
-        newOrderData.total += item.product.price * item.quantity;
+
+      for (const [_id, quantity] of Object.entries(req.cart)) {
+        const product = await this.productModel.findById(_id);
+        if (!product) {
+          continue;
+        }
+
+        let price = 0;
+        price = product.onSale ? product.salePrice : product.price;
+        newOrderData.total += price * quantity;
+
+        const newCartItem: CartItem = {} as CartItem;
+        newCartItem.product = {
+          name: product.name,
+          description: product.description,
+          onSale: product.onSale,
+          image: product.image,
+          price: price,
+          originalId: product._id,
+        };
+        newCartItem.quantity = quantity;
+
+        newOrderData.cart.push(newCartItem);
       }
     }
 
@@ -87,7 +105,6 @@ export class OrderController {
     if (!updated) {
       throw new NotFoundException();
     }
-    return updated._id;
   }
 
   @Get('')
@@ -106,29 +123,58 @@ export class OrderController {
       };
     }
 
-    let search = {};
+    let filter: any = {};
     let searchStr;
     if (query.search) {
       searchStr = `${query.search}`;
-      search = {
+      filter = {
         $or: [
           {
-            name: new RegExp(searchStr, 'i'),
+            shippingFullName: new RegExp(searchStr, 'i'),
           },
           {
-            description: new RegExp(searchStr, 'i'),
+            billingFullName: new RegExp(searchStr, 'i'),
+          },
+          {
+            'shippingAddress.email': new RegExp(searchStr, 'i'),
+          },
+          {
+            'billingAddress.email': new RegExp(searchStr, 'i'),
           },
         ],
       };
     }
-    const itemsPaginate = await this.orderModel.paginate(search, {
-      ...paginationConfig,
-      select: '-cart.id -__v',
-      sort: {[query.sortType]: query.sortOrder},
-    });
 
-    const {total, limit, page, pages, docs} = itemsPaginate;
-    return {items: docs, total, limit, page, pages};
+    const sortType = query.sortType ? query.sortType : 'createdAt';
+    const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
+    const aggregation: any = [
+      {
+        $addFields: {
+          shippingFullName: {$concat: ['$shippingAddress.first_name', ' ', '$shippingAddress.last_name']},
+          billingFullName: {$concat: ['$billingAddress.first_name', ' ', '$billingAddress.last_name']},
+        },
+      },
+      {$match: filter},
+      {$sort: {[sortType]: sortOrder === 'asc' ? 1 : -1}},
+      {
+        $project: {
+          shippingFullName: false,
+          billingFullName: false,
+        },
+      },
+    ];
+
+    const agg = this.orderModel.aggregate(aggregation);
+    const paginateResult = await this.orderModel.aggregatePaginate(agg, paginationConfig);
+    const {totalDocs, limit, page, totalPages} = paginateResult;
+    return {
+      items: paginateResult.docs,
+      total: totalDocs,
+      limit,
+      page,
+      pages: totalPages,
+    };
   }
 
   @Get(':id')

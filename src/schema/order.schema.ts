@@ -1,3 +1,4 @@
+import {CartItem} from '@app/shop/order/order.types';
 import {Prop, Schema, SchemaFactory, raw} from '@nestjs/mongoose';
 import {Document, Types} from 'mongoose';
 
@@ -68,18 +69,6 @@ export class Order extends Document {
       },
     ])
   )
-  cart: [
-    {
-      quantity: number;
-      product: {
-        name: string;
-        description: string;
-        price: number;
-        onSale: boolean;
-        image: string;
-        originalId: string;
-      };
-    }
-  ];
+  cart: CartItem[];
 }
 export const OrderSchema = SchemaFactory.createForClass(Order);

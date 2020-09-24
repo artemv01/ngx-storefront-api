@@ -26,7 +26,6 @@ export class reviewEditDto {
   authorEmail: string;
   @IsNotEmpty()
   authorName: string;
-
   @IsNotEmpty()
   content: string;
 }
