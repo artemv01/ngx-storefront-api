@@ -1,6 +1,5 @@
 import {Prop, Schema, SchemaFactory, raw} from '@nestjs/mongoose';
 import {Document, Types} from 'mongoose';
-import {Product, ProductSchema} from './product.schema';
 
 @Schema({
   timestamps: true,

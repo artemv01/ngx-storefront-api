@@ -1,8 +1,6 @@
 import {Controller, Request, Post, UseGuards, Body, HttpException} from '@nestjs/common';
 import {AuthGuard} from '@nestjs/passport';
 import {AuthService} from './auth.service';
-import {hash} from 'bcrypt';
-import {IsEmail, IsNotEmpty, MinLength} from 'class-validator';
 import {User} from '../schema/user.schema';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
@@ -20,14 +18,6 @@ import {Model} from 'mongoose';
   @MinLength(8, {message: 'Password must be longer than or equal to $constraint1 characters'})
   password: string;
 } */
-
-class loginDto {
-  @IsEmail()
-  email: string;
-
-  @IsNotEmpty()
-  password: string;
-}
 
 @Controller('auth')
 export class AuthController {

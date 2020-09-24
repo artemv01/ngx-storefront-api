@@ -11,68 +11,13 @@ import {
   UseGuards,
   Patch,
 } from '@nestjs/common';
-import {IsNotEmpty, Allow, Min, Max} from 'class-validator';
 import {InjectModel} from '@nestjs/mongoose';
 import {Review} from '@app/schema/review.schema';
 import {Model} from 'mongoose';
-import {Transform} from 'class-transformer';
 import {Product} from '@app/schema/product.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {InternalException} from '@app/common/internal.exception';
-
-class reviewDto {
-  @IsNotEmpty()
-  authorEmail: string;
-  @IsNotEmpty()
-  authorName: string;
-
-  @IsNotEmpty()
-  @Min(0)
-  @Max(5)
-  rating: number;
-
-  @IsNotEmpty()
-  content: string;
-
-  @IsNotEmpty()
-  productId: string;
-}
-
-class editDto {
-  @IsNotEmpty()
-  authorEmail: string;
-  @IsNotEmpty()
-  authorName: string;
-
-  @IsNotEmpty()
-  content: string;
-}
-
-class getAllDto {
-  @IsNotEmpty()
-  sortType = 'total';
-
-  @IsNotEmpty()
-  sortOrder = 'asc';
-
-  @Allow()
-  search: string;
-
-  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))
-  @Allow()
-  page: string;
-
-  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 10))
-  @Allow()
-  limit: string;
-
-  @Allow()
-  recent: boolean;
-}
-
-interface reviewModel extends Model<Review> {
-  paginate: any;
-}
+import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto} from './review.types';
 
 @Controller('review')
 export class ReviewController {
@@ -85,7 +30,7 @@ export class ReviewController {
   async create(@Body() req: reviewDto) {
     const review = await this.reviewModel.create(req);
     if (!review) {
-      throw new HttpException(null, 500);
+      throw new InternalException();
     }
     const product = await this.productModel
       .findById(review.productId)
@@ -93,7 +38,7 @@ export class ReviewController {
       .exec();
 
     if (!product) {
-      throw new NotFoundException();
+      throw new InternalException();
     }
     product.ratingCount = product.ratingCount ? product.ratingCount : 0;
     product.ratingCount++;
@@ -111,13 +56,15 @@ export class ReviewController {
     }
     product.rating = currentRatingTotal / product.ratingCount;
 
-    await review.updateOne({productName: product.name});
+    review.productName = product.name;
+    await review.save();
+
     await product.save();
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  async edit(@Body() req: editDto, @Param('id') id: string) {
+  async edit(@Body() req: reviewEditDto, @Param('id') id: string) {
     const review = await this.reviewModel.findById(id).exec();
 
     if (!review) {
@@ -132,8 +79,8 @@ export class ReviewController {
   }
 
   @Get('')
-  // @UseGuards(AuthGuard('jwt'))
-  async getAll(@Query() query: getAllDto): Promise<any> {
+  @UseGuards(AuthGuard('jwt'))
+  async getAll(@Query() query: reviewGetAllDto): Promise<any> {
     if (query.recent) {
       const result = await this.reviewModel
         .find({})

@@ -1,151 +1,15 @@
-import {
-  Controller,
-  Body,
-  Post,
-  HttpException,
-  Query,
-  Get,
-  NotFoundException,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
-  UseGuards,
-  Patch,
-} from '@nestjs/common';
-import {FileInterceptor} from '@nestjs/platform-express/multer/interceptors/file.interceptor';
+import {Controller, Body, Post, Query, Get, NotFoundException, Param, Delete, UseGuards, Patch} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Product} from '@app/schema/product.schema';
 import {Model} from 'mongoose';
-import {IsNotEmpty, ValidateNested, Allow, IsEmail} from 'class-validator';
-import {Review} from '@app/schema/review.schema';
 import {Order} from '@app/schema/order.schema';
-import {Transform, Type, TransformPlainToClass, plainToClass} from 'class-transformer';
 import {AuthGuard} from '@nestjs/passport';
-
-class Address {
-  @IsNotEmpty()
-  address_line1: string;
-
-  @Allow()
-  address_line2: string;
-
-  @IsNotEmpty()
-  zip: string;
-
-  @IsNotEmpty()
-  country: string;
-
-  @IsNotEmpty()
-  city: string;
-
-  @Allow()
-  state: string;
-
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
-  @IsNotEmpty()
-  phone: string;
-
-  @IsNotEmpty()
-  first_name: string;
-
-  @IsNotEmpty()
-  last_name: string;
-}
-
-class createOrderDto {
-  @IsNotEmpty()
-  @Transform(pojo => plainToClass(Address, pojo))
-  @ValidateNested()
-  shippingAddress: Address;
-
-  @IsNotEmpty()
-  @Transform(pojo => plainToClass(Address, pojo))
-  @ValidateNested()
-  billingAddress: Address;
-
-  @IsNotEmpty()
-  cart: Record<string, number>;
-
-  @Allow()
-  notes: string;
-}
-
-class ProductInCart {
-  @IsNotEmpty()
-  name: string;
-  @IsNotEmpty()
-  description: string;
-  @IsNotEmpty()
-  price: number;
-  @IsNotEmpty()
-  onSale: boolean;
-  @IsNotEmpty()
-  image: string;
-  @IsNotEmpty()
-  originalId: string;
-}
-class CartItem {
-  @IsNotEmpty()
-  @Transform(pojo => plainToClass(ProductInCart, pojo))
-  @ValidateNested()
-  product: ProductInCart;
-
-  @IsNotEmpty()
-  quantity: number;
-}
-class editOrderDto {
-  @Transform(pojo => plainToClass(Address, pojo))
-  @ValidateNested()
-  shippingAddress: Address;
-
-  @Transform(pojo => plainToClass(Address, pojo))
-  @ValidateNested()
-  billingAddress: Address;
-  status: string;
-
-  @Transform(pojo => plainToClass(CartItem, pojo))
-  @ValidateNested()
-  cart: [CartItem];
-}
-
-class ChangeStatusDto {
-  @IsNotEmpty()
-  status: 'string';
-  @IsNotEmpty()
-  orders: string[];
-}
-
-class getAllDto {
-  @IsNotEmpty()
-  sortType = 'total';
-
-  @IsNotEmpty()
-  sortOrder = 'asc';
-  @Allow()
-  search: string;
-
-  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 1))
-  @Allow()
-  page: string;
-
-  @Transform(val => (!isNaN(parseInt(val)) ? parseInt(val) : 10))
-  @Allow()
-  limit: string;
-}
-
-interface orderModel extends Model<Order> {
-  paginate: any;
-}
+import {ChangeStatusDto, createOrderDto, CartItem, editOrderDto, getAllDto, orderModel} from './order.types';
 
 @Controller('orders')
 export class OrderController {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Order.name) private orderModel: orderModel
   ) {}
 

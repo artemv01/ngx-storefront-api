@@ -9,7 +9,6 @@ import {OrderController} from './order/order.controller';
 import {CategoryController} from './category/category.controller';
 import {Category, CategorySchemaFactory} from '@app/schema/category.schema';
 import {ProductCategory, ProductCategorySchemaFactory} from '@app/schema/product-category.schema';
-import {UploaderService} from '@app/service/uploader/uploader.service';
 
 @Module({
   imports: [
@@ -31,6 +30,6 @@ import {UploaderService} from '@app/service/uploader/uploader.service';
     ]),
   ],
   controllers: [ProductController, ReviewController, OrderController, CategoryController],
-  providers: [UploaderService],
+  providers: [],
 })
 export class ShopModule {}

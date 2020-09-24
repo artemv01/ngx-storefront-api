@@ -29,6 +29,6 @@ async function bootstrap() {
     secretAccessKey: configService.get('AWS_SECRET_KEY'),
     region: configService.get('AWS_REGION'),
   });
-  await app.listen(process.env.PORT || 4500);
+  await app.listen(configService.get('PORT') || 4500);
 }
 bootstrap();
