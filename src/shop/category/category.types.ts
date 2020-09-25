@@ -11,10 +11,10 @@ export class createDto {
 }
 
 export class getAllDto {
-  @IsNotEmpty()
+  @Allow()
   sortType: string;
 
-  @IsNotEmpty()
+  @Allow()
   sortOrder: string;
   @Allow()
   search: string;

@@ -162,31 +162,42 @@ export class ProductController {
     };
   }
 
+  @Get(':id/related')
+  async getRelated(@Param('id') id: string): Promise<Product[]> {
+    const product = await this.productModel
+      .findById(id)
+      .select('relatedProducts')
+      .exec();
+    if (!product) {
+      throw new NotFoundException();
+    }
+    const related = await this.productModel.find({_id: {$in: product.relatedProducts}}).exec();
+    return related;
+  }
+
   @Get('/top-rated')
-  async getTopRated(): Promise<any> {
+  async getTopRated(): Promise<Product[]> {
     const result = await this.productModel
       .find()
       .sort({rating: 1})
       .limit(9)
       .select('-updatedAt -_v ')
-      .lean()
       .exec();
     return result;
   }
 
   @Get('/sale')
-  async getOnSale(): Promise<any> {
+  async getOnSale(): Promise<Product[]> {
     const result = await this.productModel
       .find({onSale: true})
       .limit(9)
       .select('-updatedAt -_v ')
-      .lean()
       .exec();
     return result;
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string): Promise<any> {
+  async getOne(@Param('id') id: string): Promise<Product> {
     const product = await this.productModel.findById(id).exec();
     if (!product) {
       throw new NotFoundException();

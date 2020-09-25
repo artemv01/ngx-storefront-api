@@ -17,7 +17,7 @@ import {Model} from 'mongoose';
 import {Product} from '@app/schema/product.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {InternalException} from '@app/common/internal.exception';
-import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto} from './review.types';
+import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto, ReviewRO} from './review.types';
 
 @Controller('review')
 export class ReviewController {
@@ -121,6 +121,17 @@ export class ReviewController {
 
     const {total, limit, page, pages, docs} = itemsPaginate;
     return {items: docs, total, limit, page, pages};
+  }
+
+  @Get('recent')
+  async getRecent(): Promise<ReviewRO[]> {
+    const result = await this.reviewModel
+      .find({})
+      .sort({createdAt: 1})
+      .limit(3)
+      .lean()
+      .exec();
+    return result;
   }
 
   @Get(':id')

@@ -43,6 +43,9 @@ export class Product extends Document {
   @Prop()
   image: string;
 
+  @Prop({type: [Types.ObjectId], default: []})
+  relatedProducts: string[];
+
   getReviews: () => any;
   getCategories: () => any;
 }

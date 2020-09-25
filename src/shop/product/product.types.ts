@@ -24,6 +24,8 @@ export class createProductDto {
   categories: string;
   @Allow()
   image: string;
+  @Allow()
+  related: string[];
 }
 
 export class getAllDto {

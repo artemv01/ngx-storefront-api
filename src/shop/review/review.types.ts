@@ -3,6 +3,14 @@ import {IsNotEmpty, Min, Max, Allow} from 'class-validator';
 import {Model} from 'mongoose';
 import {Transform} from 'class-transformer';
 
+export interface ReviewRO {
+  authorEmail: string;
+  authorName: string;
+  rating: number;
+  content: string;
+  productId: string;
+}
+
 export class reviewDto {
   @IsNotEmpty()
   authorEmail: string;

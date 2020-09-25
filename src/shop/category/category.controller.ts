@@ -87,29 +87,16 @@ export class CategoryController {
       };
     }
 
+    const sortType = query.sortType ? query.sortType : 'name';
+    const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
     const itemsPaginate = await this.categoryModel.paginate(search, {
       ...paginationConfig,
-      sort: {[query.sortType]: query.sortOrder},
+      sort: {[sortType]: sortOrder},
     });
 
     const {total, limit, page, pages, docs} = itemsPaginate;
     return {items: docs, total, limit, page, pages};
-    /* 
-    const result = await this.categoryModel
-      .find(search)
-      .select(select)
-      .limit(5)
-      .lean()
-      .exec();
-    if (!select || select.indexOf('productNumber') !== -1) {
-      for (let i = 0; i < result.length; i++) {
-        (result[i] as any).productNumber = await this.productCategoryModel.countDocuments({
-          category: result[i]._id,
-        });
-      }
-    }
-
-    return result; */
   }
 
   @Get(':id')
