@@ -17,7 +17,7 @@ import {Model} from 'mongoose';
 import {Product} from '@app/schema/product.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {InternalException} from '@app/common/internal.exception';
-import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto, ReviewRO} from './review.types';
+import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto, ReviewRO, getRecentDto} from './review.types';
 
 @Controller('review')
 export class ReviewController {
@@ -124,11 +124,12 @@ export class ReviewController {
   }
 
   @Get('recent')
-  async getRecent(): Promise<ReviewRO[]> {
+  async getRecent(@Query() query: getRecentDto): Promise<ReviewRO[]> {
+    console.log(query.limit);
     const result = await this.reviewModel
       .find({})
       .sort({createdAt: 1})
-      .limit(3)
+      .limit(query.limit || 5)
       .lean()
       .exec();
     return result;

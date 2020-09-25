@@ -1,5 +1,5 @@
 import {Review} from '@app/schema/review.schema';
-import {IsNotEmpty, Min, Max, Allow} from 'class-validator';
+import {IsNotEmpty, Min, Max, Allow, IsNumberString, IsOptional} from 'class-validator';
 import {Model} from 'mongoose';
 import {Transform} from 'class-transformer';
 
@@ -10,7 +10,11 @@ export interface ReviewRO {
   content: string;
   productId: string;
 }
-
+export class getRecentDto {
+  @IsNumberString()
+  @IsOptional()
+  limit?: number;
+}
 export class reviewDto {
   @IsNotEmpty()
   authorEmail: string;
