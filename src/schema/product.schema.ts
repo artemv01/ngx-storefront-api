@@ -9,10 +9,16 @@ import {Category} from './category.schema';
   strict: true,
 })
 export class Product extends Document {
-  @Prop()
+  @Prop({
+    index: 'text',
+    sparse: true,
+  })
   name: string;
 
-  @Prop()
+  @Prop({
+    index: 'text',
+    sparse: true,
+  })
   description: string;
 
   @Prop({

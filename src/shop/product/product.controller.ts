@@ -229,17 +229,15 @@ export class ProductController {
 
     let filter: any = {};
     let searchStr;
-    if (query.search) {
+    const isSearching = query?.search?.replace(/\s/, '').length ? true : false;
+    if (isSearching) {
       searchStr = `${query.search}`;
       filter = {
-        $or: [
-          {
-            name: new RegExp(searchStr, 'i'),
-          },
-          {
-            description: new RegExp(searchStr, 'i'),
-          },
-        ],
+        $text: {
+          $search: searchStr,
+          $caseSensitive: false,
+          $language: 'en',
+        },
       };
     }
     let foundProductsInCategory = [],
@@ -262,8 +260,8 @@ export class ProductController {
 
     const aggregation: any = {
       $match: filter,
-      $project: {
-        _id: 1,
+      /* $addFields: {
+          _id: 1,
         description: 1,
         name: 1,
         rating: 1,
@@ -272,14 +270,23 @@ export class ProductController {
         price: 1,
         salePrice: 1,
         onSale: 1,
-      },
+        score: {$meta: 'textScore'},
+      }, */
     };
     if (query.sortType == 'price') {
-      aggregation.$project.sortPrice = {$cond: [{$eq: ['$onSale', true]}, '$salePrice', '$price']};
+      aggregation.$addFields = {};
+      aggregation.$addFields.sortPrice = {$cond: [{$eq: ['$onSale', true]}, '$salePrice', '$price']};
       aggregation.$sort = {sortPrice: query.sortOrder === 'asc' ? 1 : -1};
+      if (isSearching) {
+        aggregation.$sort.score = {$meta: 'textScore'};
+      }
     } else {
       aggregation.$sort = {[query.sortType]: query.sortOrder === 'asc' ? 1 : -1};
     }
+    if (isSearching) {
+      aggregation.$sort.score = {$meta: 'textScore'};
+    }
+
     const aggregationData = [];
     for (const [key, val] of Object.entries(aggregation)) {
       aggregationData.push({[key]: val});
