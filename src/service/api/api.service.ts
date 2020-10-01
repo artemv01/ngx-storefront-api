@@ -5,7 +5,6 @@ import {Observable} from 'rxjs';
 export class ApiService {
   constructor(private http: HttpService) {}
   verifyCaptcha(token: string): Promise<any> {
-    console.log('secret' + process.env.RECAPTCHA_SECRET);
     return this.http
       .post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${token}`)
       .toPromise();

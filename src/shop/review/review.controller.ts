@@ -134,10 +134,9 @@ export class ReviewController {
 
   @Get('recent')
   async getRecent(@Query() query: getRecentDto): Promise<ReviewRO[]> {
-    console.log(query.limit);
     const result = await this.reviewModel
       .find({})
-      .sort({createdAt: 1})
+      .sort({createdAt: -1})
       .limit(query.limit || 5)
       .lean()
       .exec();

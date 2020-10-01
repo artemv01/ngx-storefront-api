@@ -1,10 +1,20 @@
 {
   "name": "ngx-storefront-api",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "0.8.0",
+  "description": "An eCommerce REST API for ngx-storefront project.",
   "private": true,
-  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artemv01/ngx-storefront-api.git"
+  },
+  "author": {
+    "name": "Artem Artemev",
+    "url": "https://twitter.com/artemv01"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/artemv01/ngx-storefront-api/issues"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
