@@ -53,6 +53,9 @@ export class createOrderDto {
 
   @Allow()
   notes: string;
+
+  @IsNotEmpty()
+  captcha: string;
 }
 
 interface ProductInCart {

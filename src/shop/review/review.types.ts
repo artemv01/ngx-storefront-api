@@ -31,6 +31,9 @@ export class reviewDto {
 
   @IsNotEmpty()
   productId: string;
+
+  @IsNotEmpty()
+  captcha: string;
 }
 
 export class reviewEditDto {

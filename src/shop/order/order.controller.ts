@@ -1,16 +1,30 @@
-import {Controller, Body, Post, Query, Get, NotFoundException, Param, Delete, UseGuards, Patch} from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  Query,
+  Get,
+  NotFoundException,
+  Param,
+  Delete,
+  UseGuards,
+  Patch,
+  HttpException,
+} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Product} from '@app/schema/product.schema';
 import {Model, Types} from 'mongoose';
 import {Order} from '@app/schema/order.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {ChangeStatusDto, createOrderDto, CartItem, editOrderDto, getAllDto, orderModel} from './order.types';
+import {ApiService} from '@app/service/api/api.service';
 
 @Controller('order')
 export class OrderController {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(Order.name) private orderModel: orderModel
+    @InjectModel(Order.name) private orderModel: orderModel,
+    private api: ApiService
   ) {}
 
   @Patch('change-order-status')
@@ -25,6 +39,10 @@ export class OrderController {
 
   @Post()
   async create(@Body() req: createOrderDto): Promise<Types.ObjectId> {
+    const captchaResult = await this.api.verifyCaptcha(req.captcha);
+    if (!captchaResult.data.success) {
+      throw new HttpException(captchaResult.data['error-codes'], 400);
+    }
     const newOrder = new this.orderModel();
 
     newOrder.shippingAddress = req.shippingAddress;

@@ -10,6 +10,7 @@ import {
   Delete,
   UseGuards,
   Patch,
+  HttpService,
 } from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Review} from '@app/schema/review.schema';
@@ -18,16 +19,24 @@ import {Product} from '@app/schema/product.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {InternalException} from '@app/common/internal.exception';
 import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto, ReviewRO, getRecentDto} from './review.types';
+import {ApiService} from '@app/service/api/api.service';
+import {flatMap, catchError} from 'rxjs/operators';
+import {pipe} from 'rxjs';
 
 @Controller('review')
 export class ReviewController {
   constructor(
     @InjectModel(Review.name) private reviewModel: reviewModel,
-    @InjectModel(Product.name) private productModel: Model<Product>
+    @InjectModel(Product.name) private productModel: Model<Product>,
+    private api: ApiService
   ) {}
 
   @Post()
   async create(@Body() req: reviewDto) {
+    const captchaResult = await this.api.verifyCaptcha(req.captcha);
+    if (!captchaResult.data.success) {
+      throw new HttpException(captchaResult.data['error-codes'], 400);
+    }
     const review = await this.reviewModel.create(req);
     if (!review) {
       throw new InternalException();

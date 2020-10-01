@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {HttpModule, Module} from '@nestjs/common';
 import {ProductController} from './product/product.controller';
 import {ProductSchemaFactory, Product} from '@app/schema/product.schema';
 import {MongooseModule, getModelToken} from '@nestjs/mongoose';
@@ -9,10 +9,11 @@ import {OrderController} from './order/order.controller';
 import {CategoryController} from './category/category.controller';
 import {Category, CategorySchemaFactory} from '@app/schema/category.schema';
 import {ProductCategory, ProductCategorySchemaFactory} from '@app/schema/product-category.schema';
+import {ApiService} from '@app/service/api/api.service';
 
 @Module({
   imports: [
-    // MulterModule.register({dest: '../../uploads'}),
+    HttpModule,
     MongooseModule.forFeature([{name: Order.name, schema: OrderSchema}]),
     MongooseModule.forFeatureAsync([
       {name: Review.name, useFactory: ReviewSchemaFactory},
@@ -30,6 +31,6 @@ import {ProductCategory, ProductCategorySchemaFactory} from '@app/schema/product
     ]),
   ],
   controllers: [ProductController, ReviewController, OrderController, CategoryController],
-  providers: [],
+  providers: [ApiService],
 })
 export class ShopModule {}
