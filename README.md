@@ -1,4 +1,4 @@
-# An ecommerce system built on Angular & NestJS & TailwindCSS (the REST API part)
+# An eCommerce application built on Angular & NestJS & TailwindCSS (the REST API part)
 
 Ngx-storefront is an example of a modern SPA for eCommerce. The project consists of 3 parts:
 
@@ -8,9 +8,9 @@ Ngx-storefront is an example of a modern SPA for eCommerce. The project consists
 
 This is a repository for the the REST API. 
 
-## Techonlogy stack
+## Technology stack
 
-The techonoly stack used for the REST API includes:
+The technology stack used for the REST API includes:
 * [NestJS][nestjs]
 * [MongoDB][mongodb]/[Mongoose][mongoose]
 * [AWS S3][s3] as a file storage
