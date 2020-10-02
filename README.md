@@ -1,6 +1,6 @@
 # An eCommerce application built on Angular & NestJS & TailwindCSS (the REST API part)
 
-Ngx-storefront is an example of a modern SPA for eCommerce. The project consists of 3 parts:
+Ngx-storefront is an example of a modern eCommerce application built on TypeScript stack. The project consists of 3 parts:
 
 *   the Customer UI [artemv01/ngx-storefront][ngx-storefront]
 *   the REST API [artemv01/ngx-storefront-api][ngx-storefront-api]
