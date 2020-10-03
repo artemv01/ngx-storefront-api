@@ -24,7 +24,9 @@ class Address {
   state: string;
 
   @IsNotEmpty()
-  @IsEmail()
+  @IsEmail({
+    require_tld: false,
+  })
   email: string;
 
   @IsNotEmpty()
