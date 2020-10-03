@@ -33,6 +33,7 @@ cp .env.example .env
 # Open the .env file with your favorite  text editor (in this example vim)
 # Set the required params as per the documentation in .env file
 vim .env
+npm run db:seed
 npm install
 npm run start:dev
 ```
