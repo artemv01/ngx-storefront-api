@@ -16,14 +16,15 @@ async function bootstrap() {
       transform: true,
     })
   );
+  const configService = app.get(ConfigService);
+
   app.enableCors({
-    origin: '*',
+    origin: configService.get('FRONTEND_APP_URL'),
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
-  const configService = app.get(ConfigService);
   config.update({
     accessKeyId: configService.get('AWS_ACCESS_KEY'),
     secretAccessKey: configService.get('AWS_SECRET_KEY'),
