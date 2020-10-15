@@ -298,7 +298,7 @@ export class ProductController {
     const productsPaginate = await this.productModel.aggregatePaginate(agg, paginationConfig);
     const {totalDocs, limit, page, totalPages} = productsPaginate;
     return {
-      products: productsPaginate.docs,
+      items: productsPaginate.docs,
       categoryName: categoryName,
       total: totalDocs,
       limit,
