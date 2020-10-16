@@ -73,17 +73,17 @@ export interface CartItem {
   quantity: number;
 }
 export class editOrderDto {
-  @IsNotEmpty()
+  @Allow()
   @Transform(pojo => plainToClass(Address, pojo))
   @ValidateNested()
   shippingAddress: Address;
 
-  @IsNotEmpty()
+  @Allow()
   @Transform(pojo => plainToClass(Address, pojo))
   @ValidateNested()
   billingAddress: Address;
 
-  @IsNotEmpty()
+  @Allow()
   cart: Record<string, number>;
 
   @Allow()
