@@ -7,7 +7,7 @@ import {Category} from '@app/schema/category.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {ProductCategory} from '@app/schema/product-category.schema';
 import {InternalException} from '@app/common/internal.exception';
-import {createDto, getAllDto, categoryModel} from './category.types';
+import {createDto, getAllDto, categoryModel, bulkDeleteDto} from './category.types';
 
 @Controller('category')
 export class CategoryController {
@@ -22,6 +22,12 @@ export class CategoryController {
     const category = new this.categoryModel((req as unknown) as Category);
     const result = await category.save();
     return result._id;
+  }
+
+  @Patch('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  async bulkDelete(@Body() items: bulkDeleteDto): Promise<void> {
+    const result = this.categoryModel.deleteMany({_id: {$in: items.itemIds}}).exec();
   }
 
   @Get('bulk')

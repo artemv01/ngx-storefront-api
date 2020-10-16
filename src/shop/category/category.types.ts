@@ -34,3 +34,8 @@ export class getAllDto {
 export interface categoryModel extends Model<Category> {
   paginate: any;
 }
+
+export class bulkDeleteDto {
+  @IsNotEmpty()
+  itemIds: string[];
+}
