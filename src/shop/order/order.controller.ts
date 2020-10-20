@@ -81,6 +81,9 @@ export class OrderController {
   @UseGuards(AuthGuard('jwt'))
   async edit(@Body() req: editOrderDto, @Param('id') id): Promise<void> {
     const order = await this.orderModel.findById(id).exec();
+    if (!order) {
+      throw new NotFoundException();
+    }
     const newOrderData = {
       shippingAddress: req.shippingAddress ? req.shippingAddress : order.shippingAddress,
       billingAddress: req.billingAddress ? req.billingAddress : order.billingAddress,
@@ -90,11 +93,11 @@ export class OrderController {
       notes: req.notes ? req.notes : order.notes,
     };
 
-    if (req.cart && Object.keys(req.cart).length) {
+    if (req.cartUpdateRQ && Object.keys(req.cartUpdateRQ).length) {
       newOrderData.cart = [];
       newOrderData.total = 0;
 
-      for (const [_id, quantity] of Object.entries(req.cart)) {
+      for (const [_id, quantity] of Object.entries(req.cartUpdateRQ)) {
         const product = await this.productModel.findById(_id);
         if (!product) {
           continue;

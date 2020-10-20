@@ -84,7 +84,7 @@ export class editOrderDto {
   billingAddress: Address;
 
   @Allow()
-  cart: Record<string, number>;
+  cartUpdateRQ: Record<string, number>;
 
   @Allow()
   notes: string;
