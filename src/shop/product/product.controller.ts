@@ -260,20 +260,8 @@ export class ProductController {
 
     const aggregation: any = {
       $match: filter,
-      /* $addFields: {
-          _id: 1,
-        description: 1,
-        name: 1,
-        rating: 1,
-        ratingCount: 1,
-        image: 1,
-        price: 1,
-        salePrice: 1,
-        onSale: 1,
-        score: {$meta: 'textScore'},
-      }, */
     };
-    if (query.sortType == 'price') {
+    if (query.sortType == '_price') {
       aggregation.$addFields = {};
       aggregation.$addFields.sortPrice = {$cond: [{$eq: ['$onSale', true]}, '$salePrice', '$price']};
       aggregation.$sort = {sortPrice: query.sortOrder === 'asc' ? 1 : -1};
