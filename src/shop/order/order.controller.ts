@@ -16,7 +16,7 @@ import {Product} from '@app/schema/product.schema';
 import {Model, Types} from 'mongoose';
 import {Order} from '@app/schema/order.schema';
 import {AuthGuard} from '@nestjs/passport';
-import {ChangeStatusDto, createOrderDto, CartItem, editOrderDto, getAllDto, orderModel} from './order.types';
+import {ChangeStatusDto, createOrderDto, CartItem, editOrderDto, getAllDto, bulkDeleteDto} from './order.types';
 import {ApiService} from '@app/service/api/api.service';
 
 @Controller('order')
@@ -35,6 +35,12 @@ export class OrderController {
         status: req.status,
       });
     }
+  }
+
+  @Patch('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  async bulkDelete(@Body() items: bulkDeleteDto): Promise<void> {
+    const result = this.orderModel.deleteMany({_id: {$in: items.itemIds}}).exec();
   }
 
   @Post()

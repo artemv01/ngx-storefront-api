@@ -122,3 +122,8 @@ export interface orderModel extends Model<Order> {
   paginate: any;
   aggregatePaginate: any;
 }
+
+export class bulkDeleteDto {
+  @IsNotEmpty()
+  itemIds: string[];
+}
