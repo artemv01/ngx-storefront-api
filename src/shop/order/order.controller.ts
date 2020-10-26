@@ -16,14 +16,22 @@ import {Product} from '@app/schema/product.schema';
 import {Model, Types} from 'mongoose';
 import {Order} from '@app/schema/order.schema';
 import {AuthGuard} from '@nestjs/passport';
-import {ChangeStatusDto, createOrderDto, CartItem, editOrderDto, getAllDto, bulkDeleteDto} from './order.types';
+import {
+  ChangeStatusDto,
+  createOrderDto,
+  CartItem,
+  editOrderDto,
+  getAllDto,
+  bulkDeleteDto,
+  OrderModel,
+} from './order.types';
 import {ApiService} from '@app/service/api/api.service';
 
 @Controller('order')
 export class OrderController {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(Order.name) private orderModel: orderModel,
+    @InjectModel(Order.name) private orderModel: OrderModel,
     private api: ApiService
   ) {}
 

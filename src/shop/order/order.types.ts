@@ -118,7 +118,7 @@ export class getAllDto {
   limit: string;
 }
 
-export interface orderModel extends Model<Order> {
+export interface OrderModel extends Model<Order> {
   paginate: any;
   aggregatePaginate: any;
 }
