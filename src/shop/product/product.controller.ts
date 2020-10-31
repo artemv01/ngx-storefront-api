@@ -109,7 +109,7 @@ export class ProductController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @UseInterceptors(FileInterceptor('image', uploadConfig))
-  async create(@UploadedFile() image, @Body() req: createProductDto): Promise<Types.ObjectId> {
+  async create(@UploadedFile() image, @Body() req: createProductDto): Promise<Product> {
     const product = new this.productModel((req as unknown) as Product);
     if (image) {
       if (process.env.STORAGE_TYPE === 'DISK') {
@@ -143,7 +143,7 @@ export class ProductController {
       }
     }
 
-    return newProduct._id;
+    return newProduct;
   }
 
   @Get(':id/reviews')
