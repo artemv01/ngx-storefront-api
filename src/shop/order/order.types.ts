@@ -4,6 +4,12 @@ import {Model} from 'mongoose';
 import {Transform} from 'class-transformer';
 import {Order} from '@app/schema/order.schema';
 
+export enum OrderStatus {
+  ON_HOLD = 'on_hold',
+  PENDING = 'pending',
+  COMPLETED = 'completed',
+}
+
 class Address {
   @IsNotEmpty()
   address_line1: string;
@@ -90,12 +96,12 @@ export class editOrderDto {
   notes: string;
 
   @Allow()
-  status: string;
+  status: OrderStatus;
 }
 
 export class ChangeStatusDto {
   @IsNotEmpty()
-  status: string;
+  status: OrderStatus;
   @IsNotEmpty()
   orders: string[];
 }

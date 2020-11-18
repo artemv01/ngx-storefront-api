@@ -51,13 +51,6 @@ npm install
 npm run start
 ```
 
-
-
-## Get in touch
-
-If you’d like to chat, please find me on Twitter [https://twitter.com/artemv01](https://twitter.com/artemv01) or send me an email arteitip [at] gmail [dot] com
-
-
 ## Contributing
 
 If you are interested and have any ideas for features, please open an [issue](https://github.com/artemv01/ngx-storefront/issues/new).

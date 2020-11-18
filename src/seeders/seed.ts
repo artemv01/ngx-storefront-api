@@ -8,7 +8,7 @@ async function bootstrap() {
   const products = app.get(ProductSeederService);
   const admins = app.get(AdminSeederService);
   await products.create();
-  await admins.create();
+  // await admins.create();
   await app.close();
 }
 bootstrap();

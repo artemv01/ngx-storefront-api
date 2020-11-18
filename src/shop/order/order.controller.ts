@@ -24,6 +24,7 @@ import {
   getAllDto,
   bulkDeleteDto,
   OrderModel,
+  OrderStatus,
 } from './order.types';
 import {ApiService} from '@app/service/api/api.service';
 
@@ -37,18 +38,19 @@ export class OrderController {
 
   @Patch('change-order-status')
   @UseGuards(AuthGuard('jwt'))
-  async changeStatus(@Body() req: ChangeStatusDto): Promise<void> {
+  async changeStatus(@Body() req: ChangeStatusDto): Promise<string> {
     for (const orderId of req.orders) {
       await this.orderModel.findByIdAndUpdate(orderId, {
         status: req.status,
       });
     }
+    return JSON.stringify(req.status);
   }
 
   @Patch('bulk-delete')
   @UseGuards(AuthGuard('jwt'))
   async bulkDelete(@Body() items: bulkDeleteDto): Promise<void> {
-    const result = this.orderModel.deleteMany({_id: {$in: items.itemIds}}).exec();
+    this.orderModel.deleteMany({_id: {$in: items.itemIds}}).exec();
   }
 
   @Post()
@@ -93,12 +95,12 @@ export class OrderController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  async edit(@Body() req: editOrderDto, @Param('id') id): Promise<void> {
+  async edit(@Body() req: editOrderDto, @Param('id') id): Promise<Order> {
     const order = await this.orderModel.findById(id).exec();
     if (!order) {
       throw new NotFoundException();
     }
-    const newOrderData = {
+    const newOrderData: Partial<Order> = {
       shippingAddress: req.shippingAddress ? req.shippingAddress : order.shippingAddress,
       billingAddress: req.billingAddress ? req.billingAddress : order.billingAddress,
       cart: order.cart,
@@ -136,10 +138,9 @@ export class OrderController {
       }
     }
 
-    const updated = await order.update(newOrderData);
-    if (!updated) {
-      throw new NotFoundException();
-    }
+    // const updated = await order.update(newOrderData);
+    const updated = await this.orderModel.findByIdAndUpdate(id, newOrderData, {new: true});
+    return updated;
   }
 
   @Get('')

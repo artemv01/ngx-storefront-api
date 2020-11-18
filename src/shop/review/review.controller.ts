@@ -18,7 +18,15 @@ import {Model} from 'mongoose';
 import {Product} from '@app/schema/product.schema';
 import {AuthGuard} from '@nestjs/passport';
 import {InternalException} from '@app/common/internal.exception';
-import {reviewDto, reviewEditDto, reviewModel, reviewGetAllDto, ReviewRO, getRecentDto} from './review.types';
+import {
+  reviewDto,
+  reviewEditDto,
+  reviewModel,
+  reviewGetAllDto,
+  ReviewRO,
+  getRecentDto,
+  CreateReviewResp,
+} from './review.types';
 import {ApiService} from '@app/service/api/api.service';
 import {flatMap, catchError} from 'rxjs/operators';
 import {pipe} from 'rxjs';
@@ -32,7 +40,7 @@ export class ReviewController {
   ) {}
 
   @Post()
-  async create(@Body() req: reviewDto) {
+  async create(@Body() req: reviewDto): Promise<CreateReviewResp> {
     const captchaResult = await this.api.verifyCaptcha(req.captcha);
     if (!captchaResult.data.success) {
       throw new HttpException(captchaResult.data['error-codes'], 400);
@@ -43,7 +51,7 @@ export class ReviewController {
     }
     const product = await this.productModel
       .findById(review.productId)
-      .select('name rating ratingCount')
+      .select('name reviews rating ratingCount')
       .exec();
 
     if (!product) {
@@ -52,10 +60,7 @@ export class ReviewController {
     product.ratingCount = product.ratingCount ? product.ratingCount : 0;
     product.ratingCount++;
 
-    const reviewsForProduct = await this.reviewModel
-      .find({productId: review.productId})
-      .lean()
-      .exec();
+    const reviewsForProduct: Review[] = await this.reviewModel.find({productId: review.productId}).exec();
 
     let currentRatingTotal = 0;
     for (const r of reviewsForProduct) {
@@ -67,8 +72,13 @@ export class ReviewController {
 
     review.productName = product.name;
     await review.save();
-
     await product.save();
+
+    return {
+      reviews: reviewsForProduct,
+      rating: product.rating,
+      ratingCount: product.ratingCount,
+    };
   }
 
   @Patch(':id')

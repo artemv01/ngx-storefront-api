@@ -67,6 +67,12 @@ export class reviewGetAllDto {
   recent: boolean;
 }
 
+export interface CreateReviewResp {
+  reviews: Review[];
+  rating: number;
+  ratingCount: number;
+}
+
 export interface reviewModel extends Model<Review> {
   paginate: any;
 }

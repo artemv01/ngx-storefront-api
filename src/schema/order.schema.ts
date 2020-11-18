@@ -1,4 +1,4 @@
-import {CartItem} from '@app/shop/order/order.types';
+import {CartItem, OrderStatus} from '@app/shop/order/order.types';
 import {Prop, Schema, SchemaFactory, raw} from '@nestjs/mongoose';
 import {Document, Types} from 'mongoose';
 
@@ -49,7 +49,7 @@ export class Order extends Document {
     enum: ['pending', 'completed', 'on_hold'],
     default: 'pending',
   })
-  status: string;
+  status: OrderStatus;
 
   @Prop()
   notes: string;
