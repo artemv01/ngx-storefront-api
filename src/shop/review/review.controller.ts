@@ -26,6 +26,7 @@ import {
   ReviewRO,
   getRecentDto,
   CreateReviewResp,
+  bulkDeleteDto,
 } from './review.types';
 import {ApiService} from '@app/service/api/api.service';
 import {flatMap, catchError} from 'rxjs/operators';
@@ -38,6 +39,12 @@ export class ReviewController {
     @InjectModel(Product.name) private productModel: Model<Product>,
     private api: ApiService
   ) {}
+
+  @Patch('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  async bulkDelete(@Body() products: bulkDeleteDto): Promise<void> {
+    await this.reviewModel.deleteMany({_id: {$in: products.itemIds}}).exec();
+  }
 
   @Post()
   async create(@Body() req: reviewDto): Promise<CreateReviewResp> {

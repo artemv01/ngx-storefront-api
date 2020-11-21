@@ -81,3 +81,8 @@ export interface CreateReviewResp {
 export interface reviewModel extends Model<Review> {
   paginate: any;
 }
+
+export class bulkDeleteDto {
+  @IsNotEmpty()
+  itemIds: string[];
+}
