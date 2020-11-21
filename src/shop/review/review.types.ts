@@ -43,6 +43,11 @@ export class reviewEditDto {
   authorName: string;
   @IsNotEmpty()
   content: string;
+
+  @IsNotEmpty()
+  @Min(0)
+  @Max(5)
+  rating: number;
 }
 
 export class reviewGetAllDto {

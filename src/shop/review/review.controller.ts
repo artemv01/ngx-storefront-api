@@ -89,11 +89,25 @@ export class ReviewController {
     if (!review) {
       throw new NotFoundException();
     }
-
     const updResult = await this.reviewModel.findByIdAndUpdate(id, req, {new: true});
     if (!updResult) {
       throw new InternalException();
     }
+
+    const reviewsForProduct: Review[] = await this.reviewModel.find({productId: review.productId}).exec();
+    const product = await this.productModel.findById(review.productId).exec();
+    if (!product) {
+      throw new InternalException();
+    }
+
+    let currentRatingTotal = 0;
+    for (const r of reviewsForProduct) {
+      if (r.rating) {
+        currentRatingTotal += r.rating;
+      }
+    }
+    product.rating = currentRatingTotal / product.ratingCount;
+    product.save();
     return updResult._id;
   }
 
