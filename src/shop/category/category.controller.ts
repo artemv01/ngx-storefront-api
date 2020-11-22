@@ -18,10 +18,9 @@ export class CategoryController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  async create(@Body() req: createDto): Promise<Types.ObjectId> {
+  async create(@Body() req: createDto): Promise<Category> {
     const category = new this.categoryModel((req as unknown) as Category);
-    const result = await category.save();
-    return result._id;
+    return await category.save();
   }
 
   @Patch('bulk-delete')
