@@ -1,16 +1,16 @@
-# An eCommerce application built on Angular & NestJS & TailwindCSS (the REST API part)
+# An eCommerce REST API built on NestJS
 
-Ngx-storefront is an example of a modern eCommerce application built on TypeScript stack. The project consists of 3 parts:
+Ngx-storefront is an example of a modern eCommerce application built on the MEAN stack. The project consists of 3 parts:
 
-*   the Customer UI [artemv01/ngx-storefront][ngx-storefront]
+*   the Customer application [artemv01/ngx-storefront][ngx-storefront]
 *   the REST API [artemv01/ngx-storefront-api][ngx-storefront-api]
-*   and the Admin UI (coming soon)
+*   and the Admin application [artemv01/ngx-admin][ngx-admin]
 
 This is a repository for the the REST API. 
 
 ## Technology stack
 
-The technology stack used for the REST API includes:
+The technology stack used for this project:
 * [NestJS][nestjs]
 * [MongoDB][mongodb]/[Mongoose][mongoose]
 * [AWS S3][s3] as a file storage
@@ -23,33 +23,7 @@ Integration/unit tests were omitted so far and might be implemented in the futur
 
 ## Setting up development environment
 
-
-### Launch the REST API
-
-```
-git clone https://github.com/artemv01/ngx-storefront-api.git
-cd ngx-storefront-api
-cp .env.example .env
-# Open the .env file with your favorite  text editor (in this example vim)
-# Set the required params as per the documentation in .env file
-vim .env
-npm run db:seed
-npm install
-npm run start:dev
-```
-
-
-### Start the Customer UI
-```
-git clone https://github.com/artemv01/ngx-storefront.git
-cd ngx-storefront
-cp .env.example .env
-# Open the .env file with your favorite  text editor (in this example vim)
-# Set the required params as per the documentation in .env file
-vim .env
-npm install
-npm run start
-```
+> This section is a work in progress.
 
 ## Contributing
 
@@ -67,3 +41,4 @@ Feel free to use my code on your project. It would be great if you put a referen
 [s3]: https://aws.amazon.com/s3/
 [ngx-storefront]: https://github.com/artemv01/ngx-storefront
 [ngx-storefront-api]: https://github.com/artemv01/ngx-storefront-api
+[ngx-admin]: https://github.com/artemv01/ngx-admin
