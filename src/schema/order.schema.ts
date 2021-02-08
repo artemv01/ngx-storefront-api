@@ -70,5 +70,8 @@ export class Order extends Document {
     ])
   )
   cart: CartItem[];
+
+  createdAt: string;
+  updatedAt: string;
 }
 export const OrderSchema = SchemaFactory.createForClass(Order);

@@ -10,6 +10,7 @@ import {CategoryController} from './category/category.controller';
 import {Category, CategorySchemaFactory} from '@app/schema/category.schema';
 import {ProductCategory, ProductCategorySchemaFactory} from '@app/schema/product-category.schema';
 import {ApiService} from '@app/service/api/api.service';
+import { ReportsController } from './reports/reports.controller';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import {ApiService} from '@app/service/api/api.service';
       },
     ]),
   ],
-  controllers: [ProductController, ReviewController, OrderController, CategoryController],
+  controllers: [ProductController, ReviewController, OrderController, CategoryController, ReportsController],
   providers: [ApiService],
 })
 export class ShopModule {}

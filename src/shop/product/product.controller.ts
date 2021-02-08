@@ -24,6 +24,8 @@ import {InternalException} from '@app/common/internal.exception';
 import {uploadConfig} from '@app/config/upload-config';
 import {deleteImage} from '@app/helpers/delete-image';
 import {bulkDeleteDto, createProductDto, getAllDto, ProductCategoryModel, ProductModel} from './product.types';
+import {CreateProductRS} from '@app/models/create-product-rs';
+import {ProductDef} from '@app/models/product-def';
 
 @Controller('product')
 export class ProductController {
@@ -109,7 +111,7 @@ export class ProductController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @UseInterceptors(FileInterceptor('image', uploadConfig))
-  async create(@UploadedFile() image, @Body() req: createProductDto): Promise<Product> {
+  async create(@UploadedFile() image, @Body() req: createProductDto): Promise<ProductDef> {
     const product = new this.productModel((req as unknown) as Product);
     if (image) {
       if (process.env.STORAGE_TYPE === 'DISK') {
@@ -119,11 +121,12 @@ export class ProductController {
       }
     }
 
-    const newProduct = await product.save();
+    const newProduct = (await product.save()).toObject() as ProductDef;
     if (!newProduct) {
       throw new InternalException();
     }
 
+    console.log(req.categories);
     if (req.categories) {
       const categories = JSON.parse(req.categories);
 
@@ -142,7 +145,7 @@ export class ProductController {
         }
       }
     }
-
+    newProduct.categories = await product.getCategories();
     return newProduct;
   }
 

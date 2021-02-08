@@ -1,12 +1,25 @@
 import './config/aliases';
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import {ValidationPipe} from '@nestjs/common';
+import {NestApplicationOptions, ValidationPipe} from '@nestjs/common';
 import {config} from 'aws-sdk';
 import {ConfigService} from '@nestjs/config';
+import fs from 'fs';
+
+const key = '/home/ubuntu/.secret/privkey.pem';
+const cert = '/home/ubuntu/.secret/fullchain.pem';
+interface HttpsOpts {
+  key?: string;
+  cert?: string;
+}
+const opts: NestApplicationOptions = {};
+if (fs.existsSync(key) && fs.existsSync(cert)) {
+  opts.httpsOptions.key = key;
+  opts.httpsOptions.cert = cert;
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, opts);
   app.useGlobalPipes(
     new ValidationPipe({
       forbidUnknownValues: true,

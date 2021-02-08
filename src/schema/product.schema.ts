@@ -3,6 +3,7 @@ import {Document, Model, Types} from 'mongoose';
 import {Review} from './review.schema';
 import {ProductCategory} from './product-category.schema';
 import {Category} from './category.schema';
+import {CategoryDef} from '@app/models/category-def';
 
 @Schema({
   timestamps: true,
@@ -53,7 +54,7 @@ export class Product extends Document {
   relatedProducts: string[];
 
   getReviews: () => any;
-  getCategories: () => any;
+  getCategories: () => Partial<CategoryDef>[];
 }
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
@@ -76,7 +77,7 @@ export const ProductSchemaFactory = (
       .lean()
       .exec();
 
-    let catIds = [];
+    const catIds = [];
     categories.forEach(cat => {
       catIds.push(cat.category);
     });
