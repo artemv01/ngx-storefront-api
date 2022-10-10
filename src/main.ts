@@ -13,10 +13,10 @@ interface HttpsOpts {
   cert?: string;
 }
 const opts: NestApplicationOptions = {};
-if (fs.existsSync(key) && fs.existsSync(cert)) {
+/* if (fs.existsSync(key) && fs.existsSync(cert)) {
   opts.httpsOptions.key = key;
   opts.httpsOptions.cert = cert;
-}
+} */
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, opts);

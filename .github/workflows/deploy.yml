@@ -1,0 +1,68 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - 'master'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16.15.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.15.0
+
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+            
+      - name: Install Dependencies
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: |
+          npm ci
+
+      - name: Build
+        run: |
+          npm run build 
+
+      - name: Publish bundle
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avz --delete 
+          path: ./dist/
+          remote_path: /home/ubuntu/ngx-storefront-api/dist
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+
+      - name: Upload repository
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avz --delete --exclude='.env' --exclude='uploads' --exclude='dist/' --exclude='node_modules/'  --exclude='.git/'
+          path: ./
+          remote_path: /home/ubuntu/ngx-storefront-api/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+
+      - name: Post-deployment script
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          command: /bin/bash /home/ubuntu/ngx-storefront-api/scripts/deploy.sh
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          privateKey: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
