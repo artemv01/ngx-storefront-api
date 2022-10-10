@@ -59,10 +59,10 @@ jobs:
           remote_key: ${{ secrets.SSH_KEY }}
 
       - name: Post-deployment script
-        uses: garygrossgarten/github-action-ssh@release
+        uses: appleboy/ssh-action@master
         with:
-          command: /bin/bash /home/ubuntu/ngx-storefront-api/scripts/deploy.sh
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          privateKey: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          script: /bin/bash /home/ubuntu/ngx-storefront-api/scripts/deploy.sh
