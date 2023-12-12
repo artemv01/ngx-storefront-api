@@ -96,6 +96,7 @@ export class OrderController {
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
   async edit(@Body() req: editOrderDto, @Param('id') id): Promise<Order> {
+    /*  */
     const order = await this.orderModel.findById(id).exec();
     if (!order) {
       throw new NotFoundException();
